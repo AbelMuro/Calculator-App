@@ -3,10 +3,10 @@ import "./styles.css";
 
 
 function App() {
-    const [currentOperation, setCurrentOperation] = useState("");
+    const [currentOperation, setCurrentOperation] = useState("0");
     const [calculation, setCalculation] = useState("");
     let disable = false;
-    let allOperators = ["+" ,"-", "x", "/"]
+    let allOperators = ["+" ,"-", "*", "/"]
 
     const precedence = (c) => {
         if(c == '^')
@@ -19,36 +19,20 @@ function App() {
             return -1;
     }
 
-    //we convert infix to postfix because postfix is more efficient for algorithms
-    // (a+b) * c   ->  infix
-    // (ab)+ c*      ->  postfix
     const inFixToPostFix = (s) => {
         let stack = []; 
         let result = "";
  
         for(let i = 0; i < s.length; i++) {
             let c = s[i];
- 
+
             // If the scanned character is a operand, add it to output string.
             if(c >= '0' && c <= '9')
                 result += c;
- 
-            // If the scanned character is an ‘(‘, push it to the stack.
-            //else if(c == '(')
-                //stack.push('(');
- 
-            // If the scanned character is an ‘)’, pop and to output string from the stack, until an ‘(‘ is encountered.
-            //else if(c == ')') {
-                //while(stack[stack.length - 1] != '('){
-                    //result += stack[stack.length - 1];
-                    //stack.pop();
-                //}
-                //stack.pop();
-            //}
- 
-            //If an operator is scanned
+
+            //If an operator is scanned, we push it on top of the stack
             else {
-                while(stack.length != 0 && precedence(s[i]) <= precedence(stack[stack.length - 1])) {
+                while(stack.length > 0 && precedence(c) <= precedence(stack[stack.length - 1])) {  
                     result += stack[stack.length - 1];
                     stack.pop();
                 }
@@ -68,28 +52,35 @@ function App() {
 
     const handleButtonClick = (e) => {
         if(e.target && e.target.matches(".numbers")){
-            disable = false;
+            let temp;
             setCurrentOperation((prevState) => {
-                return prevState + e.target.innerHTML
+                if(prevState[0] == "0"){
+                    temp = prevState.substring(1, prevState.length);
+                    return temp + e.target.innerHTML;
+                }
+                else     
+                    return prevState + e.target.innerHTML
             });
         }
 
         else if(e.target && e.target.matches(".operator")){
+            let operatorChoosen = e.target.innerHTML === "x" ? "*" : e.target.innerHTML ;
+
             setCurrentOperation((prevState) => {
                 let temp;
                 if(allOperators.includes(prevState[prevState.length - 1])){
                     temp = prevState.slice(0, prevState.length - 1)
-                    temp += e.target.innerHTML;
+                    temp += operatorChoosen;
                     return temp;                    
                 }
                 else
-                    return prevState + e.target.innerHTML;
+                    return prevState + operatorChoosen;
 
             })
         }
 
         else if(e.target && e.target.matches("#calculate")){
-            let infix = inFixToPostFix(currentOperation);
+            let infix = inFixToPostFix("3+4*(5/3*4)");
             console.log(infix);
 
         }   
