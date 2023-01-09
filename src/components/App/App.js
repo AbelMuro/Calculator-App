@@ -1,11 +1,9 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect} from 'react';
 import "./styles.css";
 
 
 function App() {
-    const [currentOperation, setCurrentOperation] = useState("0");
-    const [calculation, setCalculation] = useState("");
-    let disable = false;
+    const [calculation, setCalculation] = useState("0");
     let allOperators = ["+" ,"-", "*", "/"]
 
     const precedence = (c) => {
@@ -26,12 +24,10 @@ function App() {
         for(let i = 0; i < s.length; i++) {
             let c = s[i];
 
-            // If the scanned character is a operand, add it to output string.
-            if(c >= '0' && c <= '9')
+            if(c >= '0' && c <= '9')                                    // If the scanned character is a operand, add it to output string.
                 result += c;
-
-            //If an operator is scanned, we push it on top of the stack
-            else {
+  
+            else {                                                      //If an operator is scanned, we push it on top of the stack
                 while(stack.length > 0 && precedence(c) <= precedence(stack[stack.length - 1])) {  
                     result += stack[stack.length - 1];
                     stack.pop();
@@ -53,7 +49,7 @@ function App() {
     const handleButtonClick = (e) => {
         if(e.target && e.target.matches(".numbers")){
             let temp;
-            setCurrentOperation((prevState) => {
+            setCalculation((prevState) => {
                 if(prevState[0] == "0"){
                     temp = prevState.substring(1, prevState.length);
                     return temp + e.target.innerHTML;
@@ -64,23 +60,22 @@ function App() {
         }
 
         else if(e.target && e.target.matches(".operator")){
-            let operatorChoosen = e.target.innerHTML === "x" ? "*" : e.target.innerHTML ;
-
-            setCurrentOperation((prevState) => {
+            let operatorChoosen = e.target.innerHTML === "x" ? "*" : e.target.innerHTML;   
+            setCalculation((prevState) => {
                 let temp;
-                if(allOperators.includes(prevState[prevState.length - 1])){
+                if(allOperators.includes(prevState[prevState.length - 1])){         ///this is where i left off
                     temp = prevState.slice(0, prevState.length - 1)
                     temp += operatorChoosen;
                     return temp;                    
                 }
                 else
-                    return prevState + operatorChoosen;
+                    return prevState + " " + operatorChoosen + " ";
 
             })
         }
 
         else if(e.target && e.target.matches("#calculate")){
-            let infix = inFixToPostFix("3+4*(5/3*4)");
+            let infix = inFixToPostFix(calculation.replaceAll(" ", ""));      
             console.log(infix);
 
         }   
@@ -102,7 +97,7 @@ function App() {
                 <div className="currentOperation">
                 </div>
                 <div className="calculation"> 
-                        {currentOperation}
+                        {calculation}
                 </div>
             </section>
 
@@ -116,7 +111,7 @@ function App() {
                 <button className="modify">
                     %    
                 </button>                
-                <button className="operator" disabled={disable}>
+                <button className="operator">
                     /
                 </button>     
                 <button className="numbers">
@@ -128,7 +123,7 @@ function App() {
                 <button className="numbers">
                     9
                 </button>    
-                <button className="operator" disabled={disable}>
+                <button className="operator">
                     x
                 </button>
                 <button className="numbers">
@@ -140,7 +135,7 @@ function App() {
                 <button className="numbers">
                     6
                 </button>
-                <button className="operator" disabled={disable}>
+                <button className="operator">
                     -
                 </button>     
                 <button className="numbers">
@@ -152,7 +147,7 @@ function App() {
                 <button className="numbers">
                     3
                 </button>  
-                <button className="operator" disabled={disable}>
+                <button className="operator">
                     +
                 </button>       
                 <button className="numbers">
