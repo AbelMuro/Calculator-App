@@ -8,16 +8,62 @@ function App() {
     let disable = false;
     let allOperators = ["+" ,"-", "x", "/"]
 
+    const precedence = (c) => {
+        if(c == '^')
+            return 3;
+        else if(c == '/' || c=='*')
+            return 2;
+        else if(c == '+' || c == '-')
+            return 1;
+        else
+            return -1;
+    }
 
-    const calculate = () => {
-        if(operator === "+")
-            setCalculation(Number(firstNumber) + Number(secondNumber)); 
-        if(operator === "x")
-            setCalculation(Number(firstNumber) * Number(secondNumber));
-        if(operator === "-")
-            setCalculation(Number(firstNumber) - Number(secondNumber));
-        if(operator === "/")
-            setCalculation(Number(firstNumber) / Number(secondNumber));
+    //we convert infix to postfix because postfix is more efficient for algorithms
+    // (a+b) * c   ->  infix
+    // (ab)+ c*      ->  postfix
+    const inFixToPostFix = (s) => {
+        let stack = []; 
+        let result = "";
+ 
+        for(let i = 0; i < s.length; i++) {
+            let c = s[i];
+ 
+            // If the scanned character is a operand, add it to output string.
+            if(c >= '0' && c <= '9')
+                result += c;
+ 
+            // If the scanned character is an ‘(‘, push it to the stack.
+            //else if(c == '(')
+                //stack.push('(');
+ 
+            // If the scanned character is an ‘)’, pop and to output string from the stack, until an ‘(‘ is encountered.
+            //else if(c == ')') {
+                //while(stack[stack.length - 1] != '('){
+                    //result += stack[stack.length - 1];
+                    //stack.pop();
+                //}
+                //stack.pop();
+            //}
+ 
+            //If an operator is scanned
+            else {
+                while(stack.length != 0 && precedence(s[i]) <= precedence(stack[stack.length - 1])) {
+                    result += stack[stack.length - 1];
+                    stack.pop();
+                }
+                stack.push(c);
+            }
+        }
+ 
+        // Pop all the remaining elements from the stack
+        while(stack.length != 0) {
+            result += stack[stack.length - 1];
+            stack.pop();
+        }
+ 
+        return result;
+    
     }
 
     const handleButtonClick = (e) => {
@@ -43,22 +89,8 @@ function App() {
         }
 
         else if(e.target && e.target.matches("#calculate")){
-            let stack = [];
-            const operationArray = currentOperation.split("");
-
-            console.log(operationArray);
-
-            if(!Number(operationArray[operationArray.length - 1])){
-                alert("You must input another number to complete the operation");
-                return;
-            }
-
-            operationArray.map((val, i) => {
-                if(Number(val))
-                    stack.push(Number(val));
-                else if(!Number(val))
-                    stack.push()
-            })
+            let infix = inFixToPostFix(currentOperation);
+            console.log(infix);
 
         }   
     }
