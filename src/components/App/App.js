@@ -1,10 +1,12 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import "./styles.css";
 
 
 function App() {
     const [calculation, setCalculation] = useState("0");
-    let allOperators = ["+" ,"-", "*", "/"]
+    let allOperators = ["+" ,"-", "*", "/"];
+    const negativeOrPositive = useRef(1);
+    const indexOfNegatives = useRef([]);
 
     const precedence = (c) => {
         if(c == '^')
@@ -17,10 +19,6 @@ function App() {
             return -1;
     }
 
-
-    //now what im trying to do is figure out two caveats
-    //the first one is what to do if the first number in the string has a negative sign
-    //the second one is what to do if the string has "*-", this denotes that we are multiplying something by a negative number
     const inFixToPostFix = (s) => {
         let stack = []; 
         let result = "";
@@ -101,7 +99,6 @@ function App() {
 
             else if (buttonChoosen == "+/-"){
                 setCalculation((prevState) => {
-
                     let prev = Array.from(prevState);    
                     let currentNumber = [];
                     for(let c = prev.length - 1; c >= 0; c--){
@@ -113,7 +110,14 @@ function App() {
                             break;
                     }
                     if(prev.length == 0){
+                        negativeOrPositive.current *= -1;
+                        indexOfNegatives.current.push(0);
                         return "-" + prevState;
+                    }
+                    else if(prev.length == 1){
+                        prev.pop();
+                        negativeOrPositive.current *= -1;
+                        indexOfNegatives.current.pop();
                     }
                     else{
                         if(prev[prev.length - 1] == "+"){
@@ -122,13 +126,17 @@ function App() {
                         }
                         else if(prev[prev.length - 1] == "-"){
                             prev.pop();
-                            if(prev[prev.length - 1] != "*" && prev[prev.length - 1] != "/"){
-                                console.log(prev[prev.length - 3]);
-                                prev.push("+");
-                            }          
+                            if(prev[prev.length - 1] != "*" && prev[prev.length - 1] != "/")
+                                prev.push("+");            
+                            else if(prev[prev.length - 1] == "*" || prev[prev.length - 1] == "/"){
+                                negativeOrPositive.current *= -1;
+                                indexOfNegatives.current.pop();
+                            }                                  
                         }
                         else if(prev[prev.length - 1] == "*" || prev[prev.length - 1] == "/"){
                             prev.push("-");
+                            negativeOrPositive.current *= -1;
+                            indexOfNegatives.current.push(prev.length - 1);
                         }
                     }
                     return prev.join("") + currentNumber.join("");
@@ -154,6 +162,14 @@ function App() {
                 alert("Please complete the expression by entering another number");
                 return;
             }
+            let calc = "";
+            for(let i = 0; i < calculation.length; i++){                                            //this is where i left off
+                if(!indexOfNegatives.current.includes(i))
+                    calc += calculation[i];
+            }
+            console.log(calc);
+            console.log(indexOfNegatives);
+            return
             let postfix = inFixToPostFix(calculation);   
             let result = evaluatePostFix(postfix);
             if(result.includes("."))
