@@ -79,6 +79,7 @@ function App() {
     }
 
     const handleButtonClick = (e) => {
+        
         if(e.target && e.target.matches(".numbers")){
             let temp;
             setCalculation((prevState) => {
@@ -157,25 +158,27 @@ function App() {
                     return prevState + operatorChoosen;
             })
         }
+
         else if(e.target && e.target.matches("#calculate")){
             if(!Number(calculation[calculation.length - 1])) {
                 alert("Please complete the expression by entering another number");
                 return;
             }
             let calc = "";
-            for(let i = 0; i < calculation.length; i++){                                            //this is where i left off
+            for(let i = 0; i < calculation.length; i++){                                            
                 if(!indexOfNegatives.current.includes(i))
                     calc += calculation[i];
             }
-            console.log(calc);
-            console.log(indexOfNegatives);
-            return
-            let postfix = inFixToPostFix(calculation);   
+            let postfix = inFixToPostFix(calc);   
             let result = evaluatePostFix(postfix);
+            result = (Number(result) * negativeOrPositive.current) + "";
             if(result.includes("."))
                 setCalculation(Number(result).toFixed(3));
             else    
-                setCalculation(Number(result))
+                setCalculation(result)
+
+            indexOfNegatives.current = [];
+            negativeOrPositive.current = 1;
         }   
     }
 
