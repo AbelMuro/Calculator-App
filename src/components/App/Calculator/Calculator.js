@@ -1,6 +1,7 @@
 import React, {useState, useEffect, useRef} from 'react';
 import infixToPostfix from './InfixToPostfix';
 import evaluatePostFix from './EvaluatePostfix';
+import preScan from './PreScan';
 import "./styles.css";
 
 
@@ -9,7 +10,6 @@ function Calculator() {
     const unary = useRef("0");                    //this ref is used to differentiate between the negative sign and the minus sign
     let allOperators = ["+" ,"-", "*", "/"];
     const negativeOrPositive = useRef(1);
-    const indexOfNegatives = useRef([]);
 
 
     const handleButtonClick = (e) => {
@@ -33,69 +33,49 @@ function Calculator() {
             let buttonChoosen = e.target.innerHTML;
 
             if(buttonChoosen == "AC"){
-                unary.current = "0";
                 setCalculation("0");
             }
             else if (buttonChoosen == "+/-"){                
                 setCalculation((prevState) => {                     
                     let prev = Array.from(prevState);          
-                    let lastWholeNumberBinary = [];                                 //array that doesnt differentiate between negative signs and minus signs       
-                    let lastWholeNumberUnary = [];                                  //array that differentiates between negative signs and minus signs 
+                    let lastWholeNumber = [];                                   
 
                     for(let c = prev.length - 1; c >= 0; c--){                      //extracting last whole number from state variable
                         if((prev[c] >= "0" && prev[c] <= "9") || prev[c] == "."){
-                            lastWholeNumberBinary.unshift(prev[c]);
-                            lastWholeNumberUnary.unshift(prev[c])
+                            lastWholeNumber.unshift(prev[c]);
                             prev.pop();                           
                         }
                         else{
-                            lastWholeNumberBinary.unshift(prev[c]);
-                            lastWholeNumberUnary.unshift(prev[c])
+                            lastWholeNumber.unshift(prev[c]);
                             prev.pop(); 
                             break;
                         }  
                     }
 
-                    let wholeNumberBinary = lastWholeNumberBinary.join("");
-                    let wholeNumberUnary = lastWholeNumberUnary.join("");
+                    let wholeNumber = lastWholeNumber.join("");                 //converting the array to a string
 
-                    if(prev.length == 0){                                                   //this is where i left off
-                        wholeNumberBinary = wholeNumberBinary[0] ==  "-" ? wholeNumberBinary.replace("-", "") : "-" + wholeNumberBinary;
-                        wholeNumberUnary = wholeNumberUnary[0] ==  "!" ? wholeNumberUnary.replace("!", "") : "!" + wholeNumberUnary;
-                        if(wholeNumberUnary.includes("!-")) {
-                            wholeNumberUnary = wholeNumberUnary.replace("-", "");
-                            console.log("hello");
-                        }
-                        unary.current = wholeNumberUnary;
-                        return wholeNumberBinary;
+                    if(prev.length == 0){                                                   
+                        wholeNumber = wholeNumber[0] ==  "-" ? wholeNumber.replace("-", "") : "-" + wholeNumber;
+                        return wholeNumber;
                     }
                     else{
-                        let sign = wholeNumberBinary.join("")[0];
+                        let sign = lastWholeNumber.join("")[0];
 
                         if(sign == "+"){
-                            lastWholeNumberBinary.shift();
-                            lastWholeNumberBinary.unshift("-");
-                            lastWholeNumberUnary.shift();
-                            lastWholeNumberUnary.unshift("!");
+                            lastWholeNumber.shift();
+                            lastWholeNumber.unshift("-");
                         }
                         else if(sign == "-"){
-                            lastWholeNumberBinary.shift();
-                            lastWholeNumberUnary.shift();
+                            lastWholeNumber.shift();
                             if(prev[prev.length - 1] != "*" && prev[prev.length - 1] != "/"){
-                                lastWholeNumberBinary.unshift("+"); 
-                                lastWholeNumberUnary.unshift("+");
-                            } 
-                            else if(prev[prev.length - 1] == "*" && prev[prev.length - 1] == "/"){
-                                lastWholeNumberUnary.unshift("!");
-                            }                  
+                                lastWholeNumber.unshift("+"); 
+                            }               
                         }
-                        else if(sign == "*" || sign == "/"){
-                            lastWholeNumberBinary.splice(1, 0, "-");
-                            lastWholeNumberUnary.splice(1, 0, "!");
-                        }
-                    }
-                    unary.current = prev.join("") +  lastWholeNumberUnary.join("");  
-                    return prev.join("") + lastWholeNumberBinary.join("");
+                        else if(sign == "*" || sign == "/")
+                            lastWholeNumber.splice(1, 0, "-");
+                        
+                    } 
+                    return prev.join("") + lastWholeNumber.join("");
                 })
             }
 
@@ -139,17 +119,11 @@ function Calculator() {
         }
 
         else if(e.target && e.target.matches("#calculate")){
-            console.log(unary.current);
-            return;
             if(!Number(calculation[calculation.length - 1])) {
                 alert("Please complete the expression by entering another number");
                 return;
             }
-            let calc = "";
-            for(let i = 0; i < calculation.length; i++){                                            
-                if(!indexOfNegatives.current.includes(i))
-                    calc += calculation[i];
-            }
+            let calc = preScan(calculation);
             let postfix = infixToPostfix(calc);   
             let result = evaluatePostFix(postfix);
             result = (Number(result) * negativeOrPositive.current) + "";
@@ -157,9 +131,6 @@ function Calculator() {
                 setCalculation(Number(result).toFixed(3));
             else    
                 setCalculation(result)
-
-            indexOfNegatives.current = [];
-            negativeOrPositive.current = 1;
         }   
     }
 
