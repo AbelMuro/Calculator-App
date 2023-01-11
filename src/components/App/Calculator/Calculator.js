@@ -7,7 +7,6 @@ import "./styles.css";
 
 function Calculator() {
     const [calculation, setCalculation] = useState("0");
-    const unary = useRef("0");                    //this ref is used to differentiate between the negative sign and the minus sign
     let allOperators = ["+" ,"-", "*", "/"];
     const negativeOrPositive = useRef(1);
 
@@ -19,11 +18,9 @@ function Calculator() {
             setCalculation((prevState) => {
                 if(prevState[0] == "0"){
                     temp = prevState.substring(1, prevState.length);
-                    unary.current = temp + e.target.innerHTML;
                     return temp + e.target.innerHTML;
                 }
                 else  {
-                    unary.current = prevState + e.target.innerHTML;
                     return prevState + e.target.innerHTML
                 }      
             });
@@ -107,14 +104,11 @@ function Calculator() {
                 if(allOperators.includes(prevState[prevState.length - 1])){   
                     temp = prevState.slice(0, prevState.length - 1)
                     temp += operatorChoosen;
-                    unary.current = temp;
                     return temp;                    
                 }
-                else{
-                    unary.current = prevState + operatorChoosen;
+                else
                     return prevState + operatorChoosen;
-                }
-                    
+                  
             })
         }
 
@@ -124,6 +118,8 @@ function Calculator() {
                 return;
             }
             let calc = preScan(calculation);
+            console.log(calc);
+            return;
             let postfix = infixToPostfix(calc);   
             let result = evaluatePostFix(postfix);
             result = (Number(result) * negativeOrPositive.current) + "";
