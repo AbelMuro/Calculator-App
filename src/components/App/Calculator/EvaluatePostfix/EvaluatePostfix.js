@@ -1,3 +1,6 @@
+//This algorithm will read a postfix formatted expression 
+//and use a stack data structure to evaluate the expression
+
 
 function evaluatePostFix (s) {
     let stack = [];
@@ -7,6 +10,8 @@ function evaluatePostFix (s) {
         currentChar = s[i];
         if((currentChar >= "0" && currentChar <= "9") || currentChar == ".")
             wholeNumber += currentChar;
+        else if(currentChar == "!")
+            wholeNumber += "-";
             
         else if(currentChar == " "){
             stack.push(wholeNumber);
@@ -19,7 +24,7 @@ function evaluatePostFix (s) {
             if(currentChar === "+")
                 stack.push(operandOne + operandTwo);
             if(currentChar === "-")
-                stack.push(operandOne - operandTwo);
+                stack.push(operandTwo - operandOne);
             if(currentChar === "*")
                 stack.push(operandOne * operandTwo);
             if(currentChar === "/")

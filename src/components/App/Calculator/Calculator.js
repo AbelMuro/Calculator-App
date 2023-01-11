@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect} from 'react';
 import infixToPostfix from './InfixToPostfix';
 import evaluatePostFix from './EvaluatePostfix';
 import preScan from './PreScan';
@@ -8,8 +8,6 @@ import "./styles.css";
 function Calculator() {
     const [calculation, setCalculation] = useState("0");
     let allOperators = ["+" ,"-", "*", "/"];
-    const negativeOrPositive = useRef(1);
-
 
     const handleButtonClick = (e) => {
         
@@ -90,8 +88,26 @@ function Calculator() {
                             break;
                     }   
                     lastWholeNumber = Number(lastWholeNumber.join("")) / 100;
-                    unary.current = prev.join("") + lastWholeNumber;
                     return prev.join("") + lastWholeNumber;
+                })
+            }
+
+            else if(buttonChoosen == "."){
+                setCalculation((prevState) => {
+                    let prev = Array.from(prevState);
+                    let lastWholeNumber = [];
+
+                    for(let i = prev.length - 1; i >= 0; i--){
+                        if(!allOperators.includes(prev[i])){
+                            lastWholeNumber.unshift(prev[i])
+                            prev.pop();
+                        }                        
+                        else 
+                            break;
+                    }
+                    if(lastWholeNumber.length == 0) return prevState;
+                    else if(lastWholeNumber.includes(".")) return prevState;
+                    return prev.join("") + lastWholeNumber.join("") + "."
                 })
             }
 
@@ -118,11 +134,8 @@ function Calculator() {
                 return;
             }
             let calc = preScan(calculation);
-            console.log(calc);
-            return;
             let postfix = infixToPostfix(calc);   
             let result = evaluatePostFix(postfix);
-            result = (Number(result) * negativeOrPositive.current) + "";
             if(result.includes("."))
                 setCalculation(Number(result).toFixed(3));
             else    
