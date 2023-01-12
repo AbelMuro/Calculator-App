@@ -11,7 +11,8 @@ function Calculator() {
     const [calculation, setCalculation] = useState("0");
     let allOperators = ["+" ,"-", "×", "÷"];
     const resetCalculation = useRef(false);
-    console.log(calculation);
+    const changeOperation = useRef(false);
+    //console.log(calculation);
 
     const handleButtonClick = (e) => {
         
@@ -42,34 +43,36 @@ function Calculator() {
                 if(!Number(calculation[calculation.length - 1])) return;         
                 setCalculation((prevState) => {                     
                     let prev = Array.from(prevState);          
-                    let lastWholeNumber = [];                                   
+                    let lastWholeNumber = []; 
+                    let isSpace                                  
 
-                    for(let c = prev.length - 1; c >= 0; c--){                      //prev will contain the previous expression WITH the space, while lastwholeNUmber will contain the last number of the expression
-                        if((prev[c] >= "0" && prev[c] <= "9") || prev[c] == "."){
-                            lastWholeNumber.unshift(prev[c]);
-                            prev.pop();                           
+                    //need to refactor this bit of code
+                    for(let c = prev.length - 1; c >= 0; c--){                      //the whole point of this for loop is to extract the last whole number from the state.
+                        if((prev[c] >= "0" && prev[c] <= "9") || prev[c] == "."){   //everything before the last whole number will be placed in prev
+                            lastWholeNumber.unshift(prev[c]);                       // EX: 8 + 3 - 5       ->  prev = 8 + 3 -          lastWholeNumber = 5
+                            prev.pop();                                             //             (we later extract the minus sign in prev ) 
                         }
                         else {
-                            prev.pop();
+                            isSpace = prev.pop();                                   //we also remove the extra space here between prev and lastwholenumber, but we don't include it in lastWholeNumber
                             break;
                         }
                             
                     }
                     let wholeNumber = lastWholeNumber.join("");              
-                    if(prev.length == 0){                                            
-                        wholeNumber = wholeNumber[0] ==  "-" ? wholeNumber.replace(" -", "") : " -" + wholeNumber;
+                    if(prev.length == 0){  
+                        wholeNumber = isSpace === "-" ?  wholeNumber :  "-" + wholeNumber                             
                         return wholeNumber;
                     }
                     else{
                         let sign = prev[prev.length - 1];
                         if(sign == "+"){
                             prev.pop();
-                            lastWholeNumber.unshift(" - ");
+                            lastWholeNumber.unshift("- ");
                         }
                         else if(sign == "-"){
                             prev.pop();
                             if(prev[prev.length - 1] != "×" && prev[prev.length - 1] != "÷")
-                                lastWholeNumber.unshift(" + ");
+                                lastWholeNumber.unshift("+ ");
                         }
                         else if(sign == "×" || sign == "÷")
                             lastWholeNumber.unshift(" -");
@@ -124,19 +127,19 @@ function Calculator() {
             if(calculation[calculation.length - 1] == ".") 
                 return; 
 
-            setCalculation((prevState) => {             //need to check if the last char in the state is a period
+            setCalculation((prevState) => {           
                 let operatorChoosen = e.target.innerHTML;
                 let temp;
-                if(allOperators.includes(prevState[prevState.length - 2])){  
-                    temp = prevState.slice(0, prevState.length - 2)
-                    temp += operatorChoosen;
+                if(changeOperation.current){                                            //                 BEFORE SLICE                           AFTER SLICE
+                    temp = prevState.slice(0, prevState.length - 2);             //EX:      prevState = "45 x 56 + "    ->   temp = "45 x 56 "     and     operatorChoosen = "-"
+                    temp += operatorChoosen;                                     //         newState = 45 x 56 -
                     return " " + temp + " ";                    
                 }
-                else
+                else{
+                    changeOperation.current = true;
                     return prevState + " " + operatorChoosen + " ";
-                
+                }
                     
-                  
             })
         }
 
