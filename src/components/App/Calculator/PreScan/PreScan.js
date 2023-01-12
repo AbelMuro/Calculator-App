@@ -15,7 +15,7 @@ function preScan (s) {
             else if(sArray[i] === "÷" && sArray[i + 1] === "-")
                 sArray[i + 1] = "!";
         }
-
+        console.log(sArray.join(""))
         return sArray.join("");
     }
     else

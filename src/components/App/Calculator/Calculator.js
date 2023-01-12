@@ -16,6 +16,10 @@ function Calculator() {
 
     const handleButtonClick = (e) => {
         
+        if(e.target && !e.target.matches(".operator"))              //this is only used when the user clicks on an operator button but then clicks on a non-operator button,
+            changeOperation.current = false
+
+
         if(e.target && e.target.matches(".numbers")){
             setCalculation((prevState) => {
                 let temp; 
@@ -44,11 +48,10 @@ function Calculator() {
                 setCalculation((prevState) => {                     
                     let prev = Array.from(prevState);          
                     let lastWholeNumber = []; 
-                    let isSpace                                  
+                    let isSpace;                                  
 
-                    //need to refactor this bit of code
                     for(let c = prev.length - 1; c >= 0; c--){                      //the whole point of this for loop is to extract the last whole number from the state.
-                        if((prev[c] >= "0" && prev[c] <= "9") || prev[c] == "."){   //everything before the last whole number will be placed in prev
+                        if((prev[c] >= "0" && prev[c] <= "9") || prev[c] == "."){   //everything before the last whole number will be stored in prev
                             lastWholeNumber.unshift(prev[c]);                       // EX: 8 + 3 - 5       ->  prev = 8 + 3 -          lastWholeNumber = 5
                             prev.pop();                                             //             (we later extract the minus sign in prev ) 
                         }
@@ -86,18 +89,20 @@ function Calculator() {
                     let prev = Array.from(prevState);
                     let lastWholeNumber = [];
 
-                    for(let i = prev.length - 1; i >= 0; i--){               //extracting the last whole number from the state variable
+                    for(let i = prev.length - 1; i >= 0; i--){               //extracting the last whole number from the state variable string
                         if((prev[i] >= "0" && prev[i] <= "9") || prev[i] == "."){
                             lastWholeNumber.unshift(prev[i]);
                             prev.pop();
                         }                           
-                        else 
+                        else {
                             break;
+                        }
+                            
                     }   
-                    console.log(lastWholeNumber.join(""))
                     if(!Number(lastWholeNumber.join(""))) return prevState;
+                    else if(lastWholeNumber.includes("e")) return prevState;
                     lastWholeNumber = Number(lastWholeNumber.join("")) / 100;
-                    return prev.join("") + " " + lastWholeNumber;
+                    return prev.join("") + lastWholeNumber;
                 })
             }
             else if(buttonChoosen == "."){     
@@ -127,10 +132,11 @@ function Calculator() {
             if(calculation[calculation.length - 1] == ".") 
                 return; 
 
+            //need to refactor this bit of code
             setCalculation((prevState) => {           
                 let operatorChoosen = e.target.innerHTML;
                 let temp;
-                if(changeOperation.current){                                            //                 BEFORE SLICE                           AFTER SLICE
+                if(changeOperation.current){                                     //                 BEFORE SLICE                           AFTER SLICE
                     temp = prevState.slice(0, prevState.length - 2);             //EX:      prevState = "45 x 56 + "    ->   temp = "45 x 56 "     and     operatorChoosen = "-"
                     temp += operatorChoosen;                                     //         newState = 45 x 56 -
                     return " " + temp + " ";                    
@@ -150,7 +156,6 @@ function Calculator() {
             }
             resetCalculation.current = true;
             let calc = preScan(calculation.replaceAll(" ", ""));
-            console.log(calc);
             let postfix = infixToPostfix(calc);   
             let result = evaluatePostFix(postfix);
             if(result.includes("."))
