@@ -44,19 +44,20 @@ function Calculator() {
                     let prev = Array.from(prevState);          
                     let lastWholeNumber = [];                                   
 
-                    for(let c = prev.length - 1; c >= 0; c--){                      //extracting last whole number from state variable
+                    for(let c = prev.length - 1; c >= 0; c--){                      //prev will contain the previous expression WITH the space, while lastwholeNUmber will contain the last number of the expression
                         if((prev[c] >= "0" && prev[c] <= "9") || prev[c] == "."){
                             lastWholeNumber.unshift(prev[c]);
                             prev.pop();                           
                         }
-                        else{
-                            prev.pop(); 
+                        else {
+                            prev.pop();
                             break;
-                        }  
+                        }
+                            
                     }
                     let wholeNumber = lastWholeNumber.join("");              
                     if(prev.length == 0){                                            
-                        wholeNumber = wholeNumber[0] ==  "-" ? wholeNumber.replace("-", "") : " -" + wholeNumber;
+                        wholeNumber = wholeNumber[0] ==  "-" ? wholeNumber.replace(" -", "") : " -" + wholeNumber;
                         return wholeNumber;
                     }
                     else{
@@ -74,7 +75,6 @@ function Calculator() {
                             lastWholeNumber.unshift(" -");
                         
                     } 
-                    console.log(prev.join("") + lastWholeNumber.join(""));
                     return prev.join("") + lastWholeNumber.join("");
                 })
             }
