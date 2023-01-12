@@ -25,9 +25,9 @@ function evaluatePostFix (s) {
                 stack.push(operandOne + operandTwo);
             if(currentChar === "-")
                 stack.push(operandTwo - operandOne);
-            if(currentChar === "*")
+            if(currentChar === "×")
                 stack.push(operandOne * operandTwo);
-            if(currentChar === "/")
+            if(currentChar === "÷")
                 stack.push(operandTwo / operandOne);
         }
     }

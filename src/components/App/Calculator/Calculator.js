@@ -1,36 +1,45 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import infixToPostfix from './InfixToPostfix';
 import evaluatePostFix from './EvaluatePostfix';
 import preScan from './PreScan';
 import "./styles.css";
 
 
+//TODO: find out why there are so many spaces in the state variable
+
 function Calculator() {
     const [calculation, setCalculation] = useState("0");
-    let allOperators = ["+" ,"-", "*", "/"];
+    let allOperators = ["+" ,"-", "×", "÷"];
+    const resetCalculation = useRef(false);
+    console.log(calculation);
 
     const handleButtonClick = (e) => {
         
         if(e.target && e.target.matches(".numbers")){
-            let temp;
             setCalculation((prevState) => {
+                let temp; 
+                if(resetCalculation.current) {
+                    resetCalculation.current = false;
+                    return e.target.innerHTML;
+                }
                 if(prevState[0] == "0"){
                     temp = prevState.substring(1, prevState.length);
                     return temp + e.target.innerHTML;
                 }
-                else  {
-                    return prevState + e.target.innerHTML
-                }      
+                else  
+                    return prevState + e.target.innerHTML;               
             });
         }
 
         else if(e.target && e.target.matches(".modify")){
+            resetCalculation.current = false;
             let buttonChoosen = e.target.innerHTML;
 
             if(buttonChoosen == "AC"){
                 setCalculation("0");
             }
-            else if (buttonChoosen == "+/-"){                
+            else if (buttonChoosen == "+/-"){   
+                if(!Number(calculation[calculation.length - 1])) return;         
                 setCalculation((prevState) => {                     
                     let prev = Array.from(prevState);          
                     let lastWholeNumber = [];                                   
@@ -41,58 +50,54 @@ function Calculator() {
                             prev.pop();                           
                         }
                         else{
-                            lastWholeNumber.unshift(prev[c]);
                             prev.pop(); 
                             break;
                         }  
                     }
-
-                    let wholeNumber = lastWholeNumber.join("");                 //converting the array to a string
-
-                    if(prev.length == 0){                                                   
-                        wholeNumber = wholeNumber[0] ==  "-" ? wholeNumber.replace("-", "") : "-" + wholeNumber;
+                    let wholeNumber = lastWholeNumber.join("");              
+                    if(prev.length == 0){                                            
+                        wholeNumber = wholeNumber[0] ==  "-" ? wholeNumber.replace("-", "") : " -" + wholeNumber;
                         return wholeNumber;
                     }
                     else{
-                        let sign = lastWholeNumber.join("")[0];
-
+                        let sign = prev[prev.length - 1];
                         if(sign == "+"){
-                            lastWholeNumber.shift();
-                            lastWholeNumber.unshift("-");
+                            prev.pop();
+                            lastWholeNumber.unshift(" - ");
                         }
                         else if(sign == "-"){
-                            lastWholeNumber.shift();
-                            if(prev[prev.length - 1] != "*" && prev[prev.length - 1] != "/"){
-                                lastWholeNumber.unshift("+"); 
-                            }               
+                            prev.pop();
+                            if(prev[prev.length - 1] != "×" && prev[prev.length - 1] != "÷")
+                                lastWholeNumber.unshift(" + ");
                         }
-                        else if(sign == "*" || sign == "/")
-                            lastWholeNumber.splice(1, 0, "-");
+                        else if(sign == "×" || sign == "÷")
+                            lastWholeNumber.unshift(" -");
                         
                     } 
+                    console.log(prev.join("") + lastWholeNumber.join(""));
                     return prev.join("") + lastWholeNumber.join("");
                 })
             }
-
             else if (buttonChoosen == "%"){
                 setCalculation((prevState) =>{
                     let prev = Array.from(prevState);
                     let lastWholeNumber = [];
 
                     for(let i = prev.length - 1; i >= 0; i--){               //extracting the last whole number from the state variable
-                        if(!allOperators.includes(prev[i])){
+                        if((prev[i] >= "0" && prev[i] <= "9") || prev[i] == "."){
                             lastWholeNumber.unshift(prev[i]);
                             prev.pop();
                         }                           
                         else 
                             break;
                     }   
+                    console.log(lastWholeNumber.join(""))
+                    if(!Number(lastWholeNumber.join(""))) return prevState;
                     lastWholeNumber = Number(lastWholeNumber.join("")) / 100;
-                    return prev.join("") + lastWholeNumber;
+                    return prev.join("") + " " + lastWholeNumber;
                 })
             }
-
-            else if(buttonChoosen == "."){
+            else if(buttonChoosen == "."){     
                 setCalculation((prevState) => {
                     let prev = Array.from(prevState);
                     let lastWholeNumber = [];
@@ -106,24 +111,31 @@ function Calculator() {
                             break;
                     }
                     if(lastWholeNumber.length == 0) return prevState;
+                    else if(!Number(lastWholeNumber.join(""))) return prevState;
                     else if(lastWholeNumber.includes(".")) return prevState;
-                    return prev.join("") + lastWholeNumber.join("") + "."
+                    return prev.join("") + " " + lastWholeNumber.join("") + ".";
                 })
             }
 
         }
 
         else if(e.target && e.target.matches(".operator")){
-            let operatorChoosen = e.target.innerHTML === "x" ? "*" : e.target.innerHTML;   
-            setCalculation((prevState) => {
+            resetCalculation.current = false;
+            if(calculation[calculation.length - 1] == ".") 
+                return; 
+
+            setCalculation((prevState) => {             //need to check if the last char in the state is a period
+                let operatorChoosen = e.target.innerHTML;
                 let temp;
-                if(allOperators.includes(prevState[prevState.length - 1])){   
-                    temp = prevState.slice(0, prevState.length - 1)
+                if(allOperators.includes(prevState[prevState.length - 2])){  
+                    temp = prevState.slice(0, prevState.length - 2)
                     temp += operatorChoosen;
-                    return temp;                    
+                    return " " + temp + " ";                    
                 }
                 else
-                    return prevState + operatorChoosen;
+                    return prevState + " " + operatorChoosen + " ";
+                
+                    
                   
             })
         }
@@ -133,7 +145,9 @@ function Calculator() {
                 alert("Please complete the expression by entering another number");
                 return;
             }
-            let calc = preScan(calculation);
+            resetCalculation.current = true;
+            let calc = preScan(calculation.replaceAll(" ", ""));
+            console.log(calc);
             let postfix = infixToPostfix(calc);   
             let result = evaluatePostFix(postfix);
             if(result.includes("."))
@@ -151,7 +165,6 @@ function Calculator() {
             allButtons.removeEventListener("click", handleButtonClick);
         }
     })
-
 
     return (
         <main className="calculator">
@@ -174,7 +187,7 @@ function Calculator() {
                     %    
                 </button>                
                 <button className="operator">
-                    /
+                    &divide;
                 </button>     
                 <button className="numbers">
                     7
@@ -186,7 +199,7 @@ function Calculator() {
                     9
                 </button>    
                 <button className="operator">
-                    x
+                    &times;
                 </button>
                 <button className="numbers">
                     4

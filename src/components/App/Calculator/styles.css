@@ -1,3 +1,8 @@
+@font-face {
+    font-family: "heebo";
+    src: url(./FontFiles/Heebo-VariableFont_wght.ttf);
+}
+
 .calculator{
     background-color: rgb(151, 151, 151);
     border-radius: 10px;
@@ -12,6 +17,8 @@
     color: white;
     border-radius: 10px;
     position: relative;
+    font-family: "heebo";
+    font-size: 20px;
 }
 
 .calculation{
