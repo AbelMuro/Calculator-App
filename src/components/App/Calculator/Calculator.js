@@ -33,7 +33,7 @@ function Calculator() {
                         break;
                         
                 }
-                if(lastWholeNumber[0] == "0"){
+                if(lastWholeNumber[0] == "0" && lastWholeNumber[1] != "."){
                     lastWholeNumber.shift();
                     return prev.join("") + lastWholeNumber + e.target.innerHTML;
                 }
@@ -123,7 +123,7 @@ function Calculator() {
                             break;
                     }
                     if(lastWholeNumber.length == 0) return prevState;
-                    else if(!Number(lastWholeNumber.join("")) && !Number(lastWholeNumber.join("")) != 0) return prevState;
+                    else if(!Number(lastWholeNumber.join("")) && Number(lastWholeNumber.join("")) != 0) return prevState;
                     else if(lastWholeNumber.includes(".")) return prevState;
                     return prev.join("") + lastWholeNumber.join("") + ".";
                 })
@@ -152,7 +152,7 @@ function Calculator() {
         }
 
         else if(e.target && e.target.matches("#calculate")){
-            if(allOperators.includes(calculation[calculation.length - 2])) {
+            if(!(calculation[calculation.length - 1] >= "0" && calculation[calculation.length - 1] <= "9") ) {
                 alert("Please complete the expression by entering another number");
                 return;
             }
