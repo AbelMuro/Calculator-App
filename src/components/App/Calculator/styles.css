@@ -3,10 +3,21 @@
     src: url(./FontFiles/Heebo-VariableFont_wght.ttf);
 }
 
+html{
+    height: 100vh;
+    margin: 0px;
+}
+
+
 body{
     background-image: url("./images/calculator background.jpg");
     background-size: contain;
     background-repeat: repeat;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0px;
 }
 
 .title{
@@ -20,12 +31,11 @@ body{
 }
 
 .calculator{
-    display: block;
-    margin: auto;
     width: 360px;
     background-color: rgb(68, 163, 59);
     border-radius: 10px;
     padding: 10px;
+
 }
 
 .screen{
