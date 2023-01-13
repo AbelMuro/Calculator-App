@@ -3,11 +3,28 @@
     src: url(./FontFiles/Heebo-VariableFont_wght.ttf);
 }
 
+body{
+    background-image: url("./images/calculator background.jpg");
+    background-size: contain;
+    background-repeat: repeat;
+}
+
+.title{
+    font-family: "heebo";
+    display: block;
+    margin: auto;
+    width: 300px;
+    text-align: center;
+    color: white;
+    margin-bottom: 10px;
+}
+
 .calculator{
-    background-color: rgb(151, 151, 151);
+    display: block;
+    margin: auto;
+    width: 360px;
+    background-color: rgb(68, 163, 59);
     border-radius: 10px;
-    display: inline-block;
-    width: auto;
     padding: 10px;
 }
 
@@ -17,14 +34,23 @@
     color: white;
     border-radius: 10px;
     position: relative;
-    font-family: "heebo";
-    font-size: 20px;
 }
 
-.calculation{
+.outer{
+    width: 330px;
     position: absolute;
     bottom: 10px;
     right: 10px;
+    text-align: right;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.calculation{
+    margin: 0px;
+    font-family: "heebo";
+    font-size: 40px;
+    float: right;               /* this will force the calculation state to always stay to the right of the parent's border */
 }
 
 
@@ -41,7 +67,7 @@
 
 .operator, .numbers, .modify, #calculate{
     border-radius: 100%;
-    font-size: 20px;
+    font-size: 30px;
     width: 60px;
     height: 60px;
     border: none;
@@ -51,7 +77,7 @@
 }
 
 #calculate{
-    background-color: green;
+    background-color: rgb(0, 73, 0);
     color: white;
 }
 

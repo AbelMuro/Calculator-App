@@ -4,21 +4,16 @@ import evaluatePostFix from './EvaluatePostfix';
 import preScan from './PreScan';
 import "./styles.css";
 
-
-//TODO: find out why there are so many spaces in the state variable
-
 function Calculator() {
     const [calculation, setCalculation] = useState("0");
     let allOperators = ["+" ,"-", "×", "÷"];
     const resetCalculation = useRef(false);
     const changeOperation = useRef(false);
-    //console.log(calculation);
 
     const handleButtonClick = (e) => {
         
-        if(e.target && !e.target.matches(".operator"))              //this is only used when the user clicks on an operator button but then clicks on a non-operator button,
+        if(e.target && !e.target.matches(".operator") && !e.target.matches("#calculate"))              //this is only used when the user clicks on an operator button but then clicks on a non-operator button,
             changeOperation.current = false
-
 
         if(e.target && e.target.matches(".numbers")){
             setCalculation((prevState) => {
@@ -121,7 +116,7 @@ function Calculator() {
                     if(lastWholeNumber.length == 0) return prevState;
                     else if(!Number(lastWholeNumber.join(""))) return prevState;
                     else if(lastWholeNumber.includes(".")) return prevState;
-                    return prev.join("") + " " + lastWholeNumber.join("") + ".";
+                    return prev.join("") + lastWholeNumber.join("") + ".";
                 })
             }
 
@@ -131,10 +126,8 @@ function Calculator() {
             resetCalculation.current = false;
             if(calculation[calculation.length - 1] == ".") 
                 return; 
-
-            //need to refactor this bit of code
             setCalculation((prevState) => {           
-                let operatorChoosen = e.target.innerHTML;
+                let operatorChoosen = e.target.innerHTML;                        
                 let temp;
                 if(changeOperation.current){                                     //                 BEFORE SLICE                           AFTER SLICE
                     temp = prevState.slice(0, prevState.length - 2);             //EX:      prevState = "45 x 56 + "    ->   temp = "45 x 56 "     and     operatorChoosen = "-"
@@ -150,7 +143,7 @@ function Calculator() {
         }
 
         else if(e.target && e.target.matches("#calculate")){
-            if(!Number(calculation[calculation.length - 1])) {
+            if(allOperators.includes(calculation[calculation.length - 2])) {
                 alert("Please complete the expression by entering another number");
                 return;
             }
@@ -168,19 +161,22 @@ function Calculator() {
     useEffect(() => {
         const allButtons = document.querySelector(".buttons");
         allButtons.addEventListener("click", handleButtonClick);
-
         return () => {
             allButtons.removeEventListener("click", handleButtonClick);
         }
     })
 
     return (
+    <>
         <main className="calculator">
+            <h1 className="title">
+                Calculator App!
+            </h1>
             <section className="screen">
-                <div className="currentOperation">
-                </div>
-                <div className="calculation"> 
-                    {calculation}
+                <div className="outer">
+                    <p className="calculation">
+                        {calculation}
+                    </p>                        
                 </div>
             </section>
 
@@ -243,7 +239,9 @@ function Calculator() {
                     =
                 </button>       
             </section>
-        </main>
+        </main>    
+    </>
+
 
     )
 }

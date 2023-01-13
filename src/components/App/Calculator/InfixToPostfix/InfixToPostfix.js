@@ -8,14 +8,10 @@ function infixToPostfix(s) {
     let stack = []; 
     let result = "";
 
-    const precedence = (c) => {
-        if(c == '×')
-            return 4;
-        else if(c == '÷')
-            return 3;
-        else if(c == '+')
-            return 2;
-        else if(c == '-')
+    const precedence = (c) => {                //keep in mind that we are using PEMDAS for our order of operations
+        if(c == '×' || c == '÷')               //Parenthesis, Exponent..
+            return 2;                          //multiplication and division have the same rank, so just solve them from left to right
+        else if(c == '+' || c == "-")          //addition and subtraction have the same rank, so just solve them from left to right
             return 1;
         else
             return -1;
@@ -42,7 +38,6 @@ function infixToPostfix(s) {
         result += stack[stack.length - 1];
         stack.pop();
     }
-
     return result;
 }
 
