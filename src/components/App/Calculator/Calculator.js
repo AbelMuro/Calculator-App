@@ -17,24 +17,33 @@ function Calculator() {
 
         if(e.target && e.target.matches(".numbers")){
             setCalculation((prevState) => {
-                let temp; 
                 if(resetCalculation.current) {
                     resetCalculation.current = false;
                     return e.target.innerHTML;
                 }
-                if(prevState[0] == "0"){
-                    temp = prevState.substring(1, prevState.length);
-                    return temp + e.target.innerHTML;
+
+                let lastWholeNumber = [];
+                let prev = Array.from(prevState);
+                for(let i = prevState.length - 1; i >= 0; i--){
+                    if((prevState[i] >= "0" && prevState[i] <= "9") || prevState[i] == "."){
+                        lastWholeNumber.unshift(prevState[i]);
+                        prev.pop();
+                    }
+                    else 
+                        break;
+                        
                 }
-                else  
-                    return prevState + e.target.innerHTML;               
+                if(lastWholeNumber[0] == "0"){
+                    lastWholeNumber.shift();
+                    return prev.join("") + lastWholeNumber + e.target.innerHTML;
+                }
+                else 
+                    return prevState + e.target.innerHTML;                  
             });
         }
 
         else if(e.target && e.target.matches(".modify")){
-            resetCalculation.current = false;
             let buttonChoosen = e.target.innerHTML;
-
             if(buttonChoosen == "AC"){
                 setCalculation("0");
             }
@@ -100,7 +109,7 @@ function Calculator() {
                     return prev.join("") + lastWholeNumber;
                 })
             }
-            else if(buttonChoosen == "."){     
+            else if(buttonChoosen == "."){          //this is where i left off, i want to be able to type 0.23 
                 setCalculation((prevState) => {
                     let prev = Array.from(prevState);
                     let lastWholeNumber = [];
@@ -114,7 +123,7 @@ function Calculator() {
                             break;
                     }
                     if(lastWholeNumber.length == 0) return prevState;
-                    else if(!Number(lastWholeNumber.join(""))) return prevState;
+                    else if(!Number(lastWholeNumber.join("")) && !Number(lastWholeNumber.join("")) != 0) return prevState;
                     else if(lastWholeNumber.includes(".")) return prevState;
                     return prev.join("") + lastWholeNumber.join("") + ".";
                 })
@@ -232,7 +241,7 @@ function Calculator() {
                 <button className="numbers">
                     0
                 </button>     
-                <button className="modify">
+                <button className="modify" id="decimalPoint">
                     .
                 </button>            
                 <button id="calculate">
